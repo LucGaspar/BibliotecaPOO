@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -44,14 +45,21 @@ public class Biblioteca {
     public static void main(String[] args) throws FileNotFoundException, IOException {
         //System.out.println(sistemaDeData.compareDate("03/06/2015"));
         biblioteca = new Biblioteca();
-		try{
-			csvProfessor = args[0];
-			csvAluno     = args[1];
-			csvComunidade= args[2];
-			csvTexto     = args[3];
-			csvGeral     = args[4];
-			biblioteca.carregaCSV(args[0], args[1], args[2], args[3], args[4]);
-		} catch(Exception e){};
+        try{
+            csvProfessor = args[0];
+            csvAluno     = args[1];
+            csvComunidade= args[2];
+            csvTexto     = args[3];
+            csvGeral     = args[4];
+        }catch(Exception e){
+            csvProfessor = "Professor.csv";
+            csvAluno     = "Aluno.csv";
+            csvComunidade= "Comunidade.csv";
+            csvTexto     = "Texto.csv";
+            csvGeral     = "Geral.csv";
+        }
+
+        biblioteca.carregaCSV(csvProfessor, csvAluno, csvComunidade, csvTexto, csvGeral);
         biblioteca.menuPrincipal();
     }
     
@@ -168,7 +176,6 @@ public class Biblioteca {
     }
     
     public void menuPrincipal() throws IOException{
-        clearConsole();
         System.out.print("1 - Cadastrar Usuario\n2 - Cadastrar Livro\n"
                 + "3 - Emprestimo\n4 - Devolucao\n5 - Checar Suspensão\n"
                 + "6 - Listar\n7 - Data\n8 - Sair\n Opcao: ");
@@ -193,7 +200,7 @@ public class Biblioteca {
         String Nome;
         String RG;
         String Email;
-        System.out.println("Insira as informacoes");
+        System.out.println("\nInsira as informacoes");
         System.out.print("Nome: ");
         Nome = scanner.nextLine();
         System.out.print("RG: ");
@@ -257,7 +264,8 @@ public class Biblioteca {
                 break;
             }
         }    
-        System.out.println("Usuario cadastrado com sucesso!");
+        clearConsole();
+        System.out.println("\nUsuario cadastrado com sucesso!");
         fileWriter.append(Usuarios.get(Usuarios.size() - 1).toString() + "\n");
         fileWriter.flush();
         fileWriter.close();
@@ -272,7 +280,7 @@ public class Biblioteca {
         String Autor;
         short  Ano;
         int    ID;
-        System.out.println("Insira as informacoes");
+        System.out.println("\nInsira as informacoes");
         System.out.print("Titulo: ");
         Titulo = scanner.nextLine();
         System.out.print("Autor: ");
@@ -315,6 +323,7 @@ public class Biblioteca {
                 break;
             } 
         }    
+        clearConsole();
         System.out.println("Livro cadastrado com sucesso!");
          
         fileWriter.append(Livros.get(Livros.size() - 1).toString() + "\n");
@@ -328,7 +337,7 @@ public class Biblioteca {
     }
 
     private void menuEmprestimo() throws IOException {
-        System.out.print("Titulo: ");
+        System.out.print("\nTitulo: ");
         String Nome = scanner.nextLine();
 
         System.out.print("RG do Usuário: ");
@@ -342,6 +351,7 @@ public class Biblioteca {
                     .collect(Collectors.toList());
         
         if (Usuario.isEmpty()){
+            clearConsole();
             System.out.println("\nUsuário não encontrado\n");
             biblioteca.menuPrincipal();
             return;
@@ -349,6 +359,7 @@ public class Biblioteca {
         
         // Checa se o usuário não está suspenso
         if (Usuario.get(0).getEstado() > 0){
+            clearConsole();
             System.out.println("O usuário está suspenso.\n");
             biblioteca.menuPrincipal();
             return;
@@ -364,6 +375,7 @@ public class Biblioteca {
         // Checa se o usuário não está com livros atrasados
         for (Emprestimo emprestimo : emprestimos) {
             if (sistemaDeData.compareDate(emprestimo.getDataDevolucao()) > 0){
+                clearConsole();
                 System.out.println("O usuário está com livros em atraso" + 
                         sistemaDeData.compareDate(emprestimo.getDataDevolucao()));
                 biblioteca.menuPrincipal();
@@ -372,6 +384,7 @@ public class Biblioteca {
         }
         
         if (emprestimos.size() == Usuario.get(0).getMaxLivros()){
+            clearConsole();
             System.out.println("Usuário já pegou o limite de livros");
             biblioteca.menuPrincipal();
             return;
@@ -389,6 +402,7 @@ public class Biblioteca {
         
         // Se não encontrou o livro
         if (Livro.isEmpty()){
+            clearConsole();
             System.out.println("\nLivro não encontrado\n");
             biblioteca.menuPrincipal();
             return;
@@ -403,6 +417,7 @@ public class Biblioteca {
         
         // Livro já está emprestado
         if (emprestimoss.isEmpty() != true){
+            clearConsole();
             System.out.println("Livro já está emprestado\n");
             biblioteca.menuPrincipal();
             return;
@@ -417,6 +432,7 @@ public class Biblioteca {
         emp.setDataDevolucao(sistemaDeData.getDataString());
         sistemaDeData.incrementDays(-1 * Usuario.get(0).getMaxPrazo());
         Emprestimos.add(emp);
+        clearConsole();
         System.out.println("Emprestimo feito com sucesso!");
         biblioteca.writeEmprestimoCSV();
         biblioteca.menuPrincipal();
@@ -443,6 +459,7 @@ public class Biblioteca {
                     .collect(Collectors.toList());
         
         if (emprestimos.isEmpty()){
+            clearConsole();
             System.out.println("Livro não foi emprestado!");
             biblioteca.menuPrincipal();
             return;
@@ -460,6 +477,7 @@ public class Biblioteca {
             usuarios.get(0).setEstado((int) (usuarios.get(0).getEstado() + atraso));
         
         Emprestimos.remove(emprestimos.get(0));
+        clearConsole();
         System.out.println("Devolução feita com sucesso!");
         biblioteca.writeEmprestimoCSV();
         biblioteca.menuPrincipal();
@@ -476,14 +494,17 @@ public class Biblioteca {
                     .collect(Collectors.toList());
         
         if (usuario.isEmpty()){
+            clearConsole();
             System.out.println("Usuário não encontrado!");
             biblioteca.menuPrincipal();
             return;
         }
         
-        if (usuario.get(0).getEstado() > 0)
+        if (usuario.get(0).getEstado() > 0){
+            clearConsole();
             System.out.println("Usuário suspenso por " + usuario.get(0).getEstado() +
                     " dias");
+        }
         else{
             List<Emprestimo> emprestimos =
                     Emprestimos
@@ -493,11 +514,13 @@ public class Biblioteca {
             
             for (Emprestimo emprestimo : emprestimos)
                 if (sistemaDeData.compareDate(emprestimo.getDataDevolucao()) > 0){
+                    clearConsole();
                     System.out.println("Usuário esta com livros em atraso");
                     biblioteca.menuPrincipal();
                     return;
                 }
                 
+            clearConsole();
             System.out.println("Usuário não está suspenso");
         }
         
@@ -507,68 +530,65 @@ public class Biblioteca {
 
     private void menuListagem() throws IOException {
         int i;
-        System.out.println("Escolha o que quer listar\n1 - Usuários\n"
+        System.out.println("\n\nEscolha o que quer listar\n1 - Usuários\n"
                 + "2 - Livros\n3 - Empréstimos");
         System.out.print("Opcao: ");
         int option = Integer.parseInt(scanner.nextLine());
         
         switch (option){
             case 1: {
+                if (Usuarios.size() == 0){
+                    biblioteca.clearConsole();
+                    System.out.println("\nSem usuários cadastrados");
+                }
+                System.out.println("\n\n");
                 for (i = 0; i < Usuarios.size(); i++)
                     System.out.println(Usuarios.get(i).toString());
+                System.out.println("\n\n");
                 break;
             }
             case 2: {
+                if (Livros.isEmpty()){
+                    biblioteca.clearConsole();
+                    System.out.println("\nSem livros cadastrados");
+                }
+                
+                System.out.println("\n\n");
                 for (i = 0; i < Livros.size(); i++)
                     System.out.println(Livros.get(i).toString());
+                System.out.println("\n\n");
                 break;
             }
             case 3: {
+                if (Emprestimos.isEmpty()){
+                    biblioteca.clearConsole();
+                    System.out.println("\nSem empréstimos feitos");
+                }
+                System.out.println("\n\n");
                 for (i = 0; i < Emprestimos.size(); i++)
                     System.out.println(Emprestimos.get(i).toString());
+                System.out.println("\n\n");
                 break;
             }
         }
         biblioteca.menuPrincipal();
     }
     
-    public final static void clearConsole()
-{
-    try
-    {
-        final String os = System.getProperty("os.name");
-
-        if (os.contains("Windows"))
-        {
-            Runtime.getRuntime().exec("cls");
-        }
-        else
-        {
-            Runtime.getRuntime().exec("clear");
-        }
-    }
-    catch (final Exception e)
-    {
-        System.out.println("Teve problemas para limpar a tela.");
-    }
+    public final static void clearConsole(){
+        char c = '\n';
+        int length = 25;
+        char[] chars = new char[length];
+        Arrays.fill(chars, c);
+        System.out.print(String.valueOf(chars));
 }
 
     private void sair() {
 
     }
-    
-    // É chamada quando há a alteração de data
-    private void updateSuspensao() {
-        int i;
-        // Desincrementa do Estado só se todos os livros em atraso já foram devolvidos
-        for (i = 0; i < Usuarios.size(); i++){
-            
-        }
-    }
 
     private void menuData() throws IOException {
         System.out.println("\nData atual: " + sistemaDeData.getDataString());
-        System.out.print("1 - Alterar\n2 - Voltar\nOpcao: ");
+        System.out.print("\n1 - Alterar\n2 - Voltar\nOpcao: ");
         int option = Integer.parseInt(scanner.nextLine());
         switch(option){
             case 1: {
@@ -580,6 +600,7 @@ public class Biblioteca {
                 break;
             }
             case 2: {
+                clearConsole();
                 biblioteca.menuPrincipal();
                 break;
             }
@@ -611,4 +632,3 @@ public class Biblioteca {
     }
     
 }
-
